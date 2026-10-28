@@ -1,25 +1,28 @@
 let pageCount;
 
-const applyPagination = (query, state, action) => {
-    const limit = state.rowsPerPage;
-    let page = state.page;
+export function initPagination(elements, callback) {
+    // Если у вас внутри была какая-то логика инициализации кнопок, оставьте её здесь
 
-    // переносим код, который делали под @todo: #2.6
+    const applyPagination = (query, state, action) => {
+        const limit = state.rowsPerPage;
+        let page = state.page;
 
-    return Object.assign({}, query, { // добавим параметры к query, но не изменяем исходный объект
-        limit,
-        page
-    });
+        // ваш код для @todo: #2.6
+
+        return Object.assign({}, query, {
+            limit,
+            page
+        });
+    };
+
+    const updatePagination = (total, { page, limit }) => {
+        pageCount = Math.ceil(total / limit);
+
+        // ваш код для @todo: #2.4 и #2.5
+    };
+
+    return {
+        applyPagination,
+        updatePagination
+    };
 }
-
-const updatePagination = (total, { page, limit }) => {
-    pageCount = Math.ceil(total / limit);
-
-    // переносим код, который делали под @todo: #2.4
-    // переносим код, который делали под @todo: #2.5 (обратите внимание, что rowsPerPage заменена на limit)
-}
-
-return {
-    updatePagination,
-    applyPagination
-}; 
