@@ -74,7 +74,7 @@ async function render(action) {
 
     // Применяем модули фильтрации, поиска, сортировки и пагинации
     if (applyFiltering) {
-        query = applyFiltering(query, state, action);
+      query = applyFiltering(query, state, action);
     }
     query = applyPagination(query, state, action);
     query = applySearching(query, state, action);
