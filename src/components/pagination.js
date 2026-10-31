@@ -1,3 +1,4 @@
+import { getPages } from '../lib/utils.js';
 let pageCount;
 
 export function initPagination(elements, callback) {
@@ -35,58 +36,27 @@ export function initPagination(elements, callback) {
 
         if (!elements.pages) return;
 
-        elements.pages.innerHTML = ''; // Очищаем старые страницы
-
-        const fragment = document.createDocumentFragment();
-        const addPageButton = (i) => {
-            const pageNode = pageTemplateNode 
-                ? pageTemplateNode.cloneNode(true) 
-                : document.createElement('label');
-            const filledNode = callback(pageNode, i, i === currentPage);
-            fragment.appendChild(filledNode);
-        };
-
-        const addEllipsis = () => {
-            const span = document.createElement('span');
-            span.textContent = '...';
-            span.className = 'pagination-ellipsis';
-            fragment.appendChild(span);
-        };
-
-        // Логика «окна»: показываем первую, последнюю и соседей текущей страницы
-        const delta = 1; // Сколько страниц показывать слева и справа от текущей
-        let rangeLeft = Math.max(2, currentPage - delta);
-        let rangeRight = Math.min(pageCount - 1, currentPage + delta);
-
-        if (currentPage - delta > 2) {
-            rangeLeft = currentPage - delta;
-        } else {
-            rangeRight = Math.min(pageCount - 1, 1 + delta * 2);
+        if (elements.fromRow) {
+            elements.fromRow.textContent = total === 0 ? 0 : (currentPage - 1) * limit + 1;
+        }
+        if (elements.toRow) {
+            elements.toRow.textContent = Math.min(currentPage * limit, total);
+        }
+        if (elements.totalRows) {
+            elements.totalRows.textContent = total;
         }
 
-        if (currentPage + delta < pageCount - 1) {
-            rangeRight = currentPage + delta;
-        } else {
-            rangeLeft = Math.max(2, pageCount - delta * 2);
-        }
+        elements.pages.innerHTML = ''; 
 
-        if (pageCount > 0) {
-            addPageButton(1);
-        }
+        if (!pageTemplateNode) return;
 
-        for (let i = rangeLeft; i <= rangeRight; i++) {
-            if (i > 1 && i < pageCount) {
-                addPageButton(i);
-            }
-        }
+        const visiblePages = getPages(currentPage, pageCount, 5);
 
-        if (pageCount > 1) {
-            addPageButton(pageCount);
-        }
+        elements.pages.replaceChildren(...visiblePages.map(pageNumber => {
+            const pageNode = pageTemplateNode.cloneNode(true);
+            return callback(pageNode, pageNumber, pageNumber === currentPage);
+        }));
 
-        elements.pages.appendChild(fragment);
-
-        // Управляем доступностью кнопок навигации (теперь они всегда видны)
         if (elements.firstPage) elements.firstPage.disabled = currentPage <= 1;
         if (elements.previousPage) elements.previousPage.disabled = currentPage <= 1;
         if (elements.nextPage) elements.nextPage.disabled = currentPage >= pageCount;
